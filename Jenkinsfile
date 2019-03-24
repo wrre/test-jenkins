@@ -12,10 +12,13 @@ node {
     stage "Build"
         git url: 'https://github.com/wrre/test-jenkins.git'
 
-        docker.image('docker').inside {
+        agent {
+            docker { image 'node:7-alpine' }
+        }
+    
+        steps {
             sh 'docker build -t ${imageName}'
         }
-
         /*container('docker') {
             stage('Build code') {
                 sh "docker build -t ${imageName}"
@@ -24,10 +27,13 @@ node {
 
     stage "Push"
         git url: 'https://github.com/wrre/test-jenkins.git'
-
-        docker.image('docker').inside {
-            sh 'docker build -t ${imageName}'
+        
+        agent {
+            docker { image 'node:7-alpine' }
         }
+
+        sh 'docker build -t ${imageName}'
+
 
         /*container('docker') {
             stage('Push docker') {
