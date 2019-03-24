@@ -1,5 +1,5 @@
-node {
-    checkout scm
+pipeline {
+    /*checkout scm*/
 
     sh "git rev-parse --short HEAD > commit-id"
 
@@ -9,39 +9,52 @@ node {
     imageName = "${registryHost}${appName}:${tag}"
     env.BUILDIMG=imageName
 
-    stage "Build"
-        git url: 'https://github.com/wrre/test-jenkins.git'
+    stages {
+        stage ("Build") {
+            /*git url: 'https://github.com/wrre/test-jenkins.git'*/
 
-        agent {
-            docker { image 'node:7-alpine' }
-        }
-    
-        steps {
-            sh 'docker build -t ${imageName}'
-        }
-        /*container('docker') {
-            stage('Build code') {
-                sh "docker build -t ${imageName}"
+            agent {
+                docker { image 'docker' }
             }
-        }*/
-
-    stage "Push"
-        git url: 'https://github.com/wrre/test-jenkins.git'
         
-        agent {
-            docker { image 'node:7-alpine' }
+            steps {
+                sh 'echo ===1'
+                sh 'docker build -t ${imageName}'
+                sh 'echo ===2'
+            }
+            /*container('docker') {
+                stage('Build code') {
+                    sh "docker build -t ${imageName}"
+                }
+            }*/
         }
 
-        sh 'docker build -t ${imageName}'
 
-
-        /*container('docker') {
-            stage('Push docker') {
-                sh "docker push ${imageName}"
+        stage ("Push") {
+            /*git url: 'https://github.com/wrre/test-jenkins.git'*/
+            
+            agent {
+                docker { image 'docker' }
             }
-        }*/
 
-    stage "Deploy"
+            steps {
+                sh 'echo ===3'
+                sh 'docker build -t ${imageName}'
+                sh 'echo ===4'
+            }
 
-        sh "sed 's#__IMAGE__#'$BUILDIMG'#' deployment.yml | kubectl apply -f -"
+            /*container('docker') {
+                stage('Push docker') {
+                    sh "docker push ${imageName}"
+                }
+            }*/
+        }
+            
+
+        stage ("Deploy") {
+            steps {
+                sh "sed 's#__IMAGE__#'$BUILDIMG'#' deployment.yml | kubectl apply -f -"
+            } 
+        }
+    }
 }
