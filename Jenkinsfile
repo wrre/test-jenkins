@@ -16,13 +16,20 @@ podTemplate(label: 'jenkins-slave-pod', ,cloud: 'kubernetes', containers: [
             registryHost = "172.20.10.7:5000/"
             imageName = "${registryHost}${appName}:${tag}"
             env.BUILDIMG=imageName
+                
+            sh 'echo ===1'
 
             stage "Build"
+                sh 'echo ===2'
                 git url: 'https://github.com/wrre/test-jenkins.git'
+                
+                sh 'echo ===3'
 
                 container('docker') {
                     stage('Build code') {
+                        sh 'echo ===4'
                         sh "docker build -t ${imageName}"
+                        sh 'echo ===5'
                     }
                 }
 
