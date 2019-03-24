@@ -1,26 +1,30 @@
-node {
+podTemplate(label: 'jenkins-slave-pod', ,cloud: 'kubernetes', containers: [
+        containerTemplate(name: 'docker', image: 'registry.cn-hangzhou.aliyuncs.com/spacexnice/jenkins-slave:latest', command: '', ttyEnabled: false)
+    ]
+    ,volumes: [
+        hostPathVolume(hostPath: '/var/run/docker.sock', mountPath: '/var/run/docker.sock')
+    ]) {
+        node {
+            env.DOCKER_API_VERSION="1.23"
 
-    checkout scm
+            sh "git rev-parse --short HEAD > commit-id"
 
-    env.DOCKER_API_VERSION="1.23"
-    
-    sh "git rev-parse --short HEAD > commit-id"
+            tag = readFile('commit-id').replace("\n", "").replace("\r", "")
+            appName = "hello-world"
+            registryHost = "172.20.10.7:5000/"
+            imageName = "${registryHost}${appName}:${tag}"
+            env.BUILDIMG=imageName
 
-    tag = readFile('commit-id').replace("\n", "").replace("\r", "")
-    appName = "hello-world"
-    registryHost = "172.20.10.7:5000/"
-    imageName = "${registryHost}${appName}:${tag}"
-    env.BUILDIMG=imageName
+            stage "Build"
 
-    stage "Build"
-    
-        sh "docker build -t ${imageName}"
-    
-    stage "Push"
+                sh "docker build -t ${imageName}"
 
-        sh "docker push ${imageName}"
+            stage "Push"
 
-    stage "Deploy"
+                sh "docker push ${imageName}"
 
-        sh "sed 's#__IMAGE__#'$BUILDIMG'#' deployment.yml | kubectl apply -f -"
+            stage "Deploy"
+
+                sh "sed 's#__IMAGE__#'$BUILDIMG'#' deployment.yml | kubectl apply -f -"
+        }
 }
