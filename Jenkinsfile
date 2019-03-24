@@ -16,12 +16,22 @@ podTemplate(label: 'jenkins-slave-pod', ,cloud: 'kubernetes', containers: [
             env.BUILDIMG=imageName
 
             stage "Build"
+                git url: 'https://github.com/wrre/test-jenkins.git'
 
-                sh "docker build -t ${imageName}"
+                container('docker') {
+                    stage('Build code') {
+                        sh "docker build -t ${imageName}"
+                    }
+                }
 
             stage "Push"
+                git url: 'https://github.com/wrre/test-jenkins.git'
 
-                sh "docker push ${imageName}"
+                container('docker') {
+                    stage('Push docker') {
+                        sh "docker push ${imageName}"
+                    }
+                }
 
             stage "Deploy"
 
