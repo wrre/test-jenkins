@@ -5,6 +5,8 @@ podTemplate(label: 'jenkins-slave-pod', ,cloud: 'kubernetes', containers: [
         hostPathVolume(hostPath: '/var/run/docker.sock', mountPath: '/var/run/docker.sock')
     ]) {
         node {
+            checkout scm
+            
             env.DOCKER_API_VERSION="1.23"
 
             sh "git rev-parse --short HEAD > commit-id"
