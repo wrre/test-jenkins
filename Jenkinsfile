@@ -9,7 +9,6 @@ node('slave-jnlp') {
             imageName = "${registryHost}${appName}:${tag}"
         }
     }
-    }
     stage('Build') {
         echo "2.Build Stage"
         sh "docker build -t ${imageName} ."
