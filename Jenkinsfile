@@ -15,6 +15,8 @@ node('slave-jnlp') {
     }
     stage('Push') {
         echo "3. Push Stage"
+        sh "cat /etc/docker/daemon.json"
+        sh "systemctl restart docker"
         sh "docker push ${imageName}"
     }
     stage('Deploy') {
