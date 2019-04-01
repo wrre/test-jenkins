@@ -15,6 +15,8 @@ node('slave-jnlp') {
     }
     stage('Push') {
         echo "3. Push Stage"
+        sh "cat << EOF > /etc/docker/daemon.json {\"live-restore\": true,\"group\": \"dockerroot\",\"insecure-registries\": [\"172.20.10.7:5000\"]}EOF"
+        sh "echo ===save ok"
         sh "cat /etc/docker/daemon.json"
         sh "systemctl restart docker"
         sh "docker push ${imageName}"
