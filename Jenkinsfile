@@ -19,7 +19,7 @@ node('slave-jnlp') {
     }
     stage('Deploy') {
         echo "4. Deploy Stage"
-        sh "sed -i 's/<IMAGE_NAME>/${imageName}/g' deployment.yaml"
+        sh 'sed -i "s/<IMAGE_NAME>/${imageName}/g" deployment.yaml'
         sh "kubectl apply -f deployment.yaml"
     }
 }
